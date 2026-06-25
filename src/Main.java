@@ -1,15 +1,48 @@
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-public class Main {
-    public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
+public class Main {
+    static HashMap<Integer, Integer> memory = new HashMap<>();
+    static Scanner sc = new Scanner(System.in);
+
+    static class Contributor extends Thread {
+        int key, value;
+        CountDownLatch latch;
+        Contributor(int key, int value,  CountDownLatch latch) {
+            this.key = key;
+            this.value = value;
+            this.latch = latch;
         }
+
+        @Override
+        public void run() {
+            try {
+                latch.await();
+                memory.put(key, value);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        System.out.print("Enter number of threads (Try 5000+): ");
+        int n = sc.nextInt();
+        Thread[] threads = new Thread[n];
+        Random rand = new Random();
+        CountDownLatch latch = new CountDownLatch(1);
+        for (int i = 0; i < n; i++) {
+            threads[i] = new Contributor(i, rand.nextInt(100),latch);
+            threads[i].start();
+        }
+        System.out.println("Releasing all threads simultaneously...");
+        latch.countDown();
+
+        for (int i = 0; i < n; i++) {
+            threads[i].join();
+        }
+
+        System.out.println("Expected Map Size: " + n);
+        System.out.println("Actual Map Size: " + memory.size());
     }
 }
