@@ -18,6 +18,8 @@ public class Main {
         public void run() {
             try {
                 latch.await();
+
+                // ensures only ONE thread cantouch 'memoty' at a split second
                 synchronized (memory) {
                     memory.put(key, value);
                 }

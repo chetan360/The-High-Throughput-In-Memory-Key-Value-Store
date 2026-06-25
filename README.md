@@ -41,6 +41,11 @@ To reproduce this race condition reliably, this engine uses a CountDownLatch act
 
 ![Screenshot 2](project-screenshots/Silent%20Data%20Corruption%20Handled.png)
 
+**Here is the steps to fix:**
+
+- Wrap the memory.put(key, vaule) inside synchronized block.
+- This ensures only ONE thread can touch 'memory' at a split second
+
 ## 🚀 Advanced Optimization: Fine-Grained Concurrency & LRU Eviction (Currently Working on)
 
 - 1. Read-Write Mutex (ReentrantReadWriteLock)
@@ -64,7 +69,3 @@ Feel free to use this template for your own portfolio. Customize it to match you
 ---
 
 **Built with ❤️ using Java**
-
-```
-
-```
