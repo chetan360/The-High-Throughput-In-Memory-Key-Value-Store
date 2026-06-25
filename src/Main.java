@@ -18,7 +18,9 @@ public class Main {
         public void run() {
             try {
                 latch.await();
-                memory.put(key, value);
+                synchronized (memory) {
+                    memory.put(key, value);
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
