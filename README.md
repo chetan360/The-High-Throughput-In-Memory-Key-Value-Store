@@ -43,8 +43,20 @@ To reproduce this race condition reliably, this engine uses a CountDownLatch act
 
 **Here is the steps to fix:**
 
-- Wrap the memory.put(key, vaule) inside synchronized block.
+- Wrap the **memory.put(key, vaule)** inside **synchronized** block.
 - This ensures only ONE thread can touch 'memory' at a split second
+
+### 03. The Executor Framework (Pooled Platform Threads)
+
+- Executor Framework: In production environments, manually creating new Thread() is highly discouraged.
+- You should pass Runnable tasks directly into an ExecutorService thread pool to reuse system resources.
+- Resource Reuse: Reuses existing threads, completely eliminating the high CPU overhead of thread creation.
+- Throttling: Prevents your application from crashing due to Out-Of-Memory (OOM) errors by limiting the maximum number of concurrent threads.
+- Lifecycle Management: Automatically handles thread crashes, tracking, and shutdown sequences
+
+![Screenshot 3](project-screenshots/Creating%20Thread%20pool.png)
+![Screenshot 3](project-screenshots/Testing%20thread%20pool.png)
+![Screenshot 3](project-screenshots/Output%20of%20thread%20pool.png)
 
 ## 🚀 Advanced Optimization: Fine-Grained Concurrency & LRU Eviction (Currently Working on)
 
@@ -59,7 +71,7 @@ https://github.com/chetan360/The-High-Throughput-In-Memory-Key-Value-Store
 
 # 2. Open in IntelliJ IDEA (or your preferred IDE).
 
-# 3. Compile and Execute Main.java.
+# 3. Compile and Execute main.Main.java.
 ```
 
 ## 📝 License
