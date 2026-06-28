@@ -55,8 +55,19 @@ To reproduce this race condition reliably, this engine uses a CountDownLatch act
 - Lifecycle Management: Automatically handles thread crashes, tracking, and shutdown sequences
 
 ![Screenshot 3](project-screenshots/Creating%20Thread%20pool.png)
-![Screenshot 3](project-screenshots/Testing%20thread%20pool.png)
-![Screenshot 3](project-screenshots/Output%20of%20thread%20pool.png)
+![Screenshot 4](project-screenshots/Testing%20thread%20pool.png)
+![Screenshot 5](project-screenshots/Output%20of%20thread%20pool.png)
+
+### 04. Project Loom & Virtual Threads
+
+- Platform Threads: Mapped 1:1 to Operating System threads. They take up about 1 MB of memory each. A typical server can crash if it attempts to run more than a few thousand of them.
+- Virtual Threads: Mapped M:N (millions of virtual threads run on a tiny pool of underlying carrier OS threads). They take up only a few hundred bytes of memory.
+- When a traditional thread makes a database call or network request, it "blocks" and sits idle, wasting OS resources.
+- When a Virtual Thread blocks on I/O, the JVM automatically detaches it from the underlying OS thread, allowing another virtual thread to execute. The blocked virtual thread safely parks in the JVM heap memory until the network or database response returns, making I/O-heavy applications massively scalable.
+- Code Example: Spawning 100,000 Threads Instantly. Because virtual threads are so cheap, you do not pool them. You simply create a new one every single time you need it.
+- Use code with caution.
+
+![Screenshot 6](project-screenshots/Testing%20Virtual%20Threads.png)
 
 ## 🚀 Advanced Optimization: Fine-Grained Concurrency & LRU Eviction (Currently Working on)
 

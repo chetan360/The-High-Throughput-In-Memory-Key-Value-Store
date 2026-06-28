@@ -7,5 +7,8 @@ public class Main {
 
         MyThreadPool tp = new MyThreadPool();
         tp.testThreadPool();
+
+        MyVirtualThread vt = new MyVirtualThread();
+        vt.testVirtualThreads();
     }
 }

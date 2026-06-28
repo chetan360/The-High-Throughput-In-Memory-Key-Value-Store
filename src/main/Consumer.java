@@ -25,7 +25,7 @@ public class Consumer {
                 try {
                     latch.await();
 
-                    // ensures only ONE thread cantouch 'memory' at a split second
+                    // ensures only ONE thread can touch 'memory' at a split second
                     synchronized (memory) {
                         memory.put(key, value);
                     }
