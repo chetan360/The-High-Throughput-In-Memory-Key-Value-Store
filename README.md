@@ -69,11 +69,40 @@ To reproduce this race condition reliably, this engine uses a CountDownLatch act
 
 ![Screenshot 6](project-screenshots/Testing%20Virtual%20Threads.png)
 
-## 🚀 Advanced Optimization: Fine-Grained Concurrency & LRU Eviction (Currently Working on)
+## 🚀 Advanced Optimization: Fine-Grained Concurrency & LRU Eviction
 
-- 1. Read-Write Mutex (ReentrantReadWriteLock)
-- 2. Thread-Safe LRU Cache Eviction Policy
+### 1. Read-Write Mutex (`ReentrantReadWriteLock`)
 
+* **Virtual Thread Optimization:** Replaced coarse global synchronization with a fine-grained read-write lock mechanism. Unlike traditional `synchronized` blocks that permanently "pin" virtual threads to physical carrier OS threads, this framework allows virtual threads to gracefully unmount from the carrier thread during lock contention, maximizing CPU efficiency.
+
+
+* **Concurrency Architecture:** Guarantees absolute mutual exclusion for writers while permitting infinite simultaneous reader threads, drastically minimizing lock contention under high-read infrastructure workloads.
+
+
+
+### 2. Thread-Safe LRU Cache Eviction Policy
+
+* **Constant Time Bounds:** Pairs a standard Java `HashMap` with a custom structural Doubly-Linked List to enforce strict `$O(1)$` lookups and eviction ejections under hard memory limits.
+
+
+* **Pointer Mutation Protection:** Because reading an LRU cache requires moving the accessed node to the head of the list, the `get()` operation fundamentally alters the underlying pointer layout. This architecture safely wraps both `get` and `put` methods in a write lock to prevent race conditions during concurrent pointer updates.
+
+---
+
+### 📊 Concurrency Performance Metrics
+
+A rigorous stress test was executed using a `newVirtualThreadPerTaskExecutor` framework to validate structural integrity and throughput under massive thread saturation:
+
+| Metric | Workload Configuration | Performance Result |
+| --- | --- | --- |
+| **Concurrent Request Streams** | 100,000 Virtual Threads | 100,000 Tasks handled effortlessly |
+| **Cache Capacity Bound** | 1,000 Hard Limit | Managed dynamically via LRU evictions|
+| **Average Execution Time** | 100k Tasks (with 10ms I/O sleep) | ~3030 ms total processing window |
+| **Structural Anomalies** | 50,000+ Parallel Mutations| **0** Silent Data Corruption cases detected |
+---
+![Screenshot 7](project-screenshots/Deling%20with%20100000%20virtual%20threads%20with%20LRU%20cache.png)
+
+---
 ## 🚀 How to Run Locally
 
 ```bash
