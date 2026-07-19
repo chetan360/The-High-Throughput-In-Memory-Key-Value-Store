@@ -1,11 +1,12 @@
-# The High-Throughput In-Memory Key-Value Store
+# Mini Redis (Concurrent In-Memory Cache Engine)
+A high-throughput, thread-safe key-value storage engine built in Java,
+demonstrating race condition reproduction, synchronized eviction policies,
+and virtual thread optimization under 100,000 concurrent request streams.
 
-The Core System: Multiple client threads are trying to read, write, and update keys (strings, lists, or expires) at the same time.
-Where Concurrency/Synchronization Shines: \* If two threads write to the exact same key simultaneously, your system will crash or corrupt without proper synchronization.
-
-### Concurrent In-Memory Key-Value Storage Engine
-
-A lightweight, high-throughput, thread-safe in-memory caching engine built in Java. This project demonstrates the hidden dangers of **Silent Data Corruption** when standard data structures are exposed to high-concurrency environments, and provides a structural evolution toward safe, optimized thread synchronization.
+### The "Why Redis is Popular" Section
+- **Caching:** It temporarily stores frequently accessed data...
+- **Speed:** Because it reads and writes from computer memory...
+- **Rich Data Structures:** It goes beyond simple key-value storage...
 
 ### 🔬 The Core Problem: Silent Data Corruption
 
@@ -16,7 +17,6 @@ When building applications designed to handle large-scale, parallel data streams
 When multiple threads execute HashMap.put() at the exact same microsecond, they concurrently alter internal memory references. If two threads target the same bucket index simultaneously, one thread's write operation can completely overwrite the other's pointer. The JVM executes valid bytecode instructions, meaning the application stays alive, but data silently vanishes.
 
 ### 🛠️ Simulation Architecture
-
 To reproduce this race condition reliably, this engine uses a CountDownLatch acting as a synchronized starting gate. All threads are initialized, held at a processing barrier, and released simultaneously to maximize the collision rate on the underlying storage bucket array.
 
 ## Project Screenshots 🖼️
@@ -55,7 +55,13 @@ To reproduce this race condition reliably, this engine uses a CountDownLatch act
 - Lifecycle Management: Automatically handles thread crashes, tracking, and shutdown sequences
 
 ![Screenshot 3](project-screenshots/Creating%20Thread%20pool.png)
+
+---
+
 ![Screenshot 4](project-screenshots/Testing%20thread%20pool.png)
+
+---
+
 ![Screenshot 5](project-screenshots/Output%20of%20thread%20pool.png)
 
 ### 04. Project Loom & Virtual Threads
@@ -82,11 +88,17 @@ To reproduce this race condition reliably, this engine uses a CountDownLatch act
 
 ### 2. Thread-Safe LRU Cache Eviction Policy
 
-* **Constant Time Bounds:** Pairs a standard Java `HashMap` with a custom structural Doubly-Linked List to enforce strict `$O(1)$` lookups and eviction ejections under hard memory limits.
+* **Constant Time Bounds:** Pairs a standard Java `HashMap` with a custom structural Doubly-Linked List to enforce strict `O(1)` lookups and eviction ejections under hard memory limits.
 
 
 * **Pointer Mutation Protection:** Because reading an LRU cache requires moving the accessed node to the head of the list, the `get()` operation fundamentally alters the underlying pointer layout. This architecture safely wraps both `get` and `put` methods in a write lock to prevent race conditions during concurrent pointer updates.
+```bash
+HEAD ◄──► [Node C] ◄──► [Node A] ◄──► [Node B] ◄──► TAIL
+      (Most Recent)                (Evict This)
 
+After get("A"):
+HEAD ◄──► [Node A] ◄──► [Node C] ◄──► [Node B] ◄──► TAIL
+```
 ---
 
 ### 📊 Concurrency Performance Metrics
@@ -106,18 +118,25 @@ A rigorous stress test was executed using a `newVirtualThreadPerTaskExecutor` fr
 ## 🚀 How to Run Locally
 
 ```bash
-# 1. clone repository
-https://github.com/chetan360/The-High-Throughput-In-Memory-Key-Value-Store
+# Prerequisites: Java 21+ required (Virtual Threads need JDK 21)
 
-# 2. Open in IntelliJ IDEA (or your preferred IDE).
+# 1. Clone the repository
+git clone https://github.com/chetan360/Mini-Redis
 
-# 3. Compile and Execute main.Main.java.
-```
+# 2. Open in IntelliJ IDEA
+
+# 3. Run specific demonstrations:
+#    → Race Condition Demo  : main.Consumer.java
+#    → Thread Pool Demo     : main.MyThreadPool.java  
+#    → Virtual Thread Demo  : main.MyVirtualThread.java
+#    → LRU Benchmark        : main.Main.java
+#    → LRU Implementation   : main.ThreadSafeLRUCache
+
+````
 
 ## 📝 License
-
-Feel free to use this template for your own portfolio. Customize it to match your personal brand!
-
----
+```bash
+MIT License — feel free to fork and build upon this project.
+```
 
 **Built with ❤️ using Java**
